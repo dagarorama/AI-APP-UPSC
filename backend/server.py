@@ -33,8 +33,15 @@ except Exception as e:
     ocr_engine = None
     OCR_AVAILABLE = False
 
-# Fix MongoDB ObjectId serialization issue with Pydantic/FastAPI
-pydantic.json.ENCODERS_BY_TYPE[ObjectId] = str
+# Fix MongoDB ObjectId serialization issue with Pydantic v2/FastAPI
+from fastapi.encoders import jsonable_encoder
+from fastapi import FastAPI
+
+# Custom JSON encoder for ObjectId
+def custom_jsonable_encoder(obj, by_alias=True, exclude_none=False, **kwargs):
+    if isinstance(obj, ObjectId):
+        return str(obj)
+    return jsonable_encoder(obj, by_alias=by_alias, exclude_none=exclude_none, **kwargs)
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
