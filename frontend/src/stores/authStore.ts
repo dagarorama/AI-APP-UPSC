@@ -40,8 +40,8 @@ interface AuthState {
   authenticate: (phone: string, otp: string) => Promise<boolean>;
 }
 
-export const useAuthStore = create<AuthState>()()
-  (persist(
+export const useAuthStore = create<AuthState>()(
+  persist(
     (set, get) => ({
       user: null,
       profile: null,
@@ -135,7 +135,8 @@ export const useAuthStore = create<AuthState>()()
         isAuthenticated: state.isAuthenticated
       }),
     }
-  ));
+  )
+);
 
 // Initialize auth state on app start
 const initializeAuth = async () => {
