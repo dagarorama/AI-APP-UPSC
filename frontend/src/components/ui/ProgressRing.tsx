@@ -1,4 +1,4 @@
-import { View, Text } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import { useEffect, useState } from 'react';
 
@@ -33,7 +33,7 @@ export function ProgressRing({
   }, [progress]);
   
   return (
-    <View className="items-center justify-center" style={{ width: size, height: size }}>
+    <View style={[styles.container, { width: size, height: size }]}>
       <Svg width={size} height={size}>
         {/* Background circle */}
         <Circle
@@ -57,16 +57,30 @@ export function ProgressRing({
           strokeDashoffset={strokeDashoffset}
           strokeLinecap="round"
           transform={`rotate(-90 ${size / 2} ${size / 2})`}
-          style={{
-            transition: 'stroke-dashoffset 0.5s ease-in-out',
-          }}
         />
       </Svg>
       
       {/* Progress text */}
-      <View className="absolute items-center justify-center">
-        <Text className="text-lg font-bold text-gray-900">{Math.round(animatedProgress)}%</Text>
+      <View style={styles.progressText}>
+        <Text style={styles.progressValue}>{Math.round(animatedProgress)}%</Text>
       </View>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  progressText: {
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  progressValue: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#111827',
+  },
+});

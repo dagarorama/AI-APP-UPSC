@@ -1,11 +1,10 @@
-import { View, Text, ScrollView, TouchableOpacity, Image, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Link, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import '../global.css';
 import { useAuthStore } from '../src/stores/authStore';
 import { usePlannerStore } from '../src/stores/plannerStore';
 import { useAnalyticsStore } from '../src/stores/analyticsStore';
@@ -68,40 +67,40 @@ export default function HomeScreen() {
 
   if (!isAuthenticated) {
     return (
-      <View className="flex-1 bg-gray-50 items-center justify-center">
+      <View style={styles.centered}>
         <ActivityIndicator size="large" color="#3b82f6" />
-        <Text className="text-gray-600 mt-4">Loading...</Text>
+        <Text style={styles.loadingText}>Loading...</Text>
       </View>
     );
   }
 
   if (isLoading) {
     return (
-      <View className="flex-1 bg-gray-50 items-center justify-center">
+      <View style={styles.centered}>
         <ActivityIndicator size="large" color="#3b82f6" />
-        <Text className="text-gray-600 mt-4">Preparing your dashboard...</Text>
+        <Text style={styles.loadingText}>Preparing your dashboard...</Text>
       </View>
     );
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
+    <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
       
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* Header */}
-        <View className="px-6 py-4">
-          <View className="flex-row items-center justify-between">
-            <View className="flex-1">
-              <Text className="text-2xl font-bold text-gray-900">
+        <View style={styles.header}>
+          <View style={styles.headerContent}>
+            <View style={styles.headerText}>
+              <Text style={styles.greeting}>
                 {getGreeting()}!
               </Text>
-              <Text className="text-lg text-gray-600 mt-1">
+              <Text style={styles.userName}>
                 {profile?.name || 'UPSC Aspirant'}
               </Text>
             </View>
             <TouchableOpacity 
-              className="w-12 h-12 bg-white rounded-full items-center justify-center shadow-sm"
+              style={styles.profileButton}
               onPress={() => router.push('/profile')}
             >
               <Ionicons name="person-outline" size={24} color="#4b5563" />
@@ -109,16 +108,16 @@ export default function HomeScreen() {
           </View>
           
           {/* Streak & Stats */}
-          <View className="flex-row items-center mt-4 space-x-4">
-            <View className="flex-row items-center bg-orange-100 px-3 py-2 rounded-full">
+          <View style={styles.statsContainer}>
+            <View style={styles.streakBadge}>
               <Ionicons name="flame" size={16} color="#f59e0b" />
-              <Text className="text-orange-600 font-semibold ml-1">
+              <Text style={styles.streakText}>
                 {dashboardData?.streak_count || 0} day streak
               </Text>
             </View>
-            <View className="flex-row items-center bg-green-100 px-3 py-2 rounded-full">
+            <View style={styles.minutesBadge}>
               <Ionicons name="time" size={16} color="#10b981" />
-              <Text className="text-green-600 font-semibold ml-1">
+              <Text style={styles.minutesText}>
                 {getTodayMinutes()} min today
               </Text>
             </View>
@@ -126,14 +125,14 @@ export default function HomeScreen() {
         </View>
 
         {/* Progress Ring */}
-        <View className="px-6 mb-6">
-          <Card className="p-6">
-            <View className="flex-row items-center justify-between">
-              <View className="flex-1">
-                <Text className="text-lg font-semibold text-gray-900 mb-2">
+        <View style={styles.section}>
+          <Card style={styles.progressCard}>
+            <View style={styles.progressContent}>
+              <View style={styles.progressTextContainer}>
+                <Text style={styles.progressTitle}>
                   Today's Progress
                 </Text>
-                <Text className="text-gray-600">
+                <Text style={styles.progressSubtitle}>
                   {todayItems?.filter(item => item.status === 'done').length || 0} of {todayItems?.length || 0} tasks completed
                 </Text>
               </View>
@@ -148,22 +147,22 @@ export default function HomeScreen() {
         </View>
 
         {/* Quick Actions */}
-        <View className="px-6 mb-6">
-          <Text className="text-lg font-semibold text-gray-900 mb-3">
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>
             Quick Actions
           </Text>
           <QuickActions />
         </View>
 
         {/* Today's Plan */}
-        <View className="px-6 mb-6">
-          <View className="flex-row items-center justify-between mb-3">
-            <Text className="text-lg font-semibold text-gray-900">
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>
               Today's Plan
             </Text>
             <Link href="/planner" asChild>
               <TouchableOpacity>
-                <Text className="text-blue-600 font-medium">View All</Text>
+                <Text style={styles.viewAllText}>View All</Text>
               </TouchableOpacity>
             </Link>
           </View>
@@ -171,8 +170,8 @@ export default function HomeScreen() {
         </View>
 
         {/* UPSC Dose */}
-        <View className="px-6 mb-6">
-          <Text className="text-lg font-semibold text-gray-900 mb-3">
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>
             Daily UPSC Dose
           </Text>
           <UpscDose />
@@ -180,42 +179,42 @@ export default function HomeScreen() {
 
         {/* Analytics Preview */}
         {dashboardData && (
-          <View className="px-6 mb-20">
-            <View className="flex-row items-center justify-between mb-3">
-              <Text className="text-lg font-semibold text-gray-900">
+          <View style={styles.lastSection}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>
                 Your Progress
               </Text>
               <Link href="/profile/analytics" asChild>
                 <TouchableOpacity>
-                  <Text className="text-blue-600 font-medium">View Details</Text>
+                  <Text style={styles.viewAllText}>View Details</Text>
                 </TouchableOpacity>
               </Link>
             </View>
             
-            <Card className="p-6">
-              <View className="flex-row justify-between mb-4">
-                <View className="items-center">
-                  <Text className="text-2xl font-bold text-gray-900">
+            <Card style={styles.analyticsCard}>
+              <View style={styles.analyticsStats}>
+                <View style={styles.statItem}>
+                  <Text style={styles.statValue}>
                     {Math.round(dashboardData.completion_rate)}%
                   </Text>
-                  <Text className="text-sm text-gray-600">Completion Rate</Text>
+                  <Text style={styles.statLabel}>Completion Rate</Text>
                 </View>
-                <View className="items-center">
-                  <Text className="text-2xl font-bold text-gray-900">
+                <View style={styles.statItem}>
+                  <Text style={styles.statValue}>
                     {Math.round(dashboardData.total_study_minutes / 60)}h
                   </Text>
-                  <Text className="text-sm text-gray-600">Total Hours</Text>
+                  <Text style={styles.statLabel}>Total Hours</Text>
                 </View>
-                <View className="items-center">
-                  <Text className="text-2xl font-bold text-gray-900">
+                <View style={styles.statItem}>
+                  <Text style={styles.statValue}>
                     {Object.keys(dashboardData.subject_stats || {}).length}
                   </Text>
-                  <Text className="text-sm text-gray-600">Subjects</Text>
+                  <Text style={styles.statLabel}>Subjects</Text>
                 </View>
               </View>
               
-              <TouchableOpacity className="bg-blue-50 p-3 rounded-lg">
-                <Text className="text-blue-600 font-medium text-center">
+              <TouchableOpacity style={styles.analyticsButton}>
+                <Text style={styles.analyticsButtonText}>
                   View Detailed Analytics
                 </Text>
               </TouchableOpacity>
@@ -226,3 +225,168 @@ export default function HomeScreen() {
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f9fafb',
+  },
+  centered: {
+    flex: 1,
+    backgroundColor: '#f9fafb',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loadingText: {
+    color: '#6b7280',
+    marginTop: 16,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  header: {
+    paddingHorizontal: 24,
+    paddingVertical: 16,
+  },
+  headerContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  headerText: {
+    flex: 1,
+  },
+  greeting: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#111827',
+  },
+  userName: {
+    fontSize: 18,
+    color: '#6b7280',
+    marginTop: 4,
+  },
+  profileButton: {
+    width: 48,
+    height: 48,
+    backgroundColor: 'white',
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  statsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 16,
+  },
+  streakBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fef3c7',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    marginRight: 16,
+  },
+  streakText: {
+    color: '#d97706',
+    fontWeight: '600',
+    marginLeft: 4,
+  },
+  minutesBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#d1fae5',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
+  minutesText: {
+    color: '#065f46',
+    fontWeight: '600',
+    marginLeft: 4,
+  },
+  section: {
+    paddingHorizontal: 24,
+    marginBottom: 24,
+  },
+  lastSection: {
+    paddingHorizontal: 24,
+    marginBottom: 80,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#111827',
+    marginBottom: 12,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  viewAllText: {
+    color: '#2563eb',
+    fontWeight: '500',
+  },
+  progressCard: {
+    padding: 24,
+  },
+  progressContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  progressTextContainer: {
+    flex: 1,
+  },
+  progressTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#111827',
+    marginBottom: 8,
+  },
+  progressSubtitle: {
+    color: '#6b7280',
+  },
+  analyticsCard: {
+    padding: 24,
+  },
+  analyticsStats: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  statItem: {
+    alignItems: 'center',
+  },
+  statValue: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#111827',
+  },
+  statLabel: {
+    fontSize: 12,
+    color: '#6b7280',
+    marginTop: 4,
+  },
+  analyticsButton: {
+    backgroundColor: '#eff6ff',
+    padding: 12,
+    borderRadius: 8,
+  },
+  analyticsButtonText: {
+    color: '#2563eb',
+    fontWeight: '500',
+    textAlign: 'center',
+  },
+});

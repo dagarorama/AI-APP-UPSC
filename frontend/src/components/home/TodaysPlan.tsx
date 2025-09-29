@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Card } from '../ui/Card';
 import { PlanItem, Subject, PlanItemStatus } from '../../stores/plannerStore';
@@ -21,13 +21,13 @@ const subjectColors: Record<Subject, { bg: string; text: string; border: string 
 export function TodaysPlan({ items = [], onUpdateProgress }: TodaysPlanProps) {
   if (!items || items.length === 0) {
     return (
-      <Card className="p-6">
-        <View className="items-center">
+      <Card style={styles.emptyCard}>
+        <View style={styles.emptyContainer}>
           <Ionicons name="calendar-outline" size={48} color="#9ca3af" />
-          <Text className="text-gray-500 text-center mt-3">
+          <Text style={styles.emptyTitle}>
             No study plan for today.
           </Text>
-          <Text className="text-gray-400 text-center mt-1">
+          <Text style={styles.emptySubtitle}>
             Create a plan to get started!
           </Text>
         </View>
@@ -37,7 +37,7 @@ export function TodaysPlan({ items = [], onUpdateProgress }: TodaysPlanProps) {
   
   const handleMarkDone = async (item: PlanItem) => {
     try {
-      const minutes = item.target_minutes; // Use target minutes as actual for quick completion
+      const minutes = item.target_minutes;
       await onUpdateProgress(item.id, minutes, 'done');
     } catch (error) {
       console.error('Error marking item as done:', error);
@@ -56,57 +56,54 @@ export function TodaysPlan({ items = [], onUpdateProgress }: TodaysPlanProps) {
     <ScrollView 
       horizontal 
       showsHorizontalScrollIndicator={false}
-      className="-mx-2"
-      contentContainerStyle={{ paddingHorizontal: 8 }}
+      contentContainerStyle={styles.scrollContainer}
     >
-      <View className="flex-row space-x-4">
+      <View style={styles.container}>
         {items.map((item) => {
           const subjectStyle = subjectColors[item.subject];
           const isCompleted = item.status === 'done';
           const isSkipped = item.status === 'skipped';
           
           return (
-            <Card key={item.id} className="w-72 p-4">
+            <Card key={item.id} style={styles.itemCard}>
               {/* Subject Badge */}
-              <View className="flex-row items-center justify-between mb-3">
+              <View style={styles.itemHeader}>
                 <View 
-                  className="px-3 py-1 rounded-full"
-                  style={{ backgroundColor: subjectStyle.bg }}
+                  style={[styles.subjectBadge, { backgroundColor: subjectStyle.bg }]}
                 >
                   <Text 
-                    className="text-xs font-semibold uppercase"
-                    style={{ color: subjectStyle.text }}
+                    style={[styles.subjectText, { color: subjectStyle.text }]}
                   >
-                    {item.subject}
+                    {item.subject.toUpperCase()}
                   </Text>
                 </View>
                 
                 {isCompleted && (
-                  <View className="w-6 h-6 bg-green-500 rounded-full items-center justify-center">
+                  <View style={styles.completedIcon}>
                     <Ionicons name="checkmark" size={16} color="white" />
                   </View>
                 )}
                 
                 {isSkipped && (
-                  <View className="w-6 h-6 bg-orange-500 rounded-full items-center justify-center">
+                  <View style={styles.skippedIcon}>
                     <Ionicons name="remove" size={16} color="white" />
                   </View>
                 )}
               </View>
               
               {/* Topic */}
-              <Text className="font-semibold text-gray-900 mb-2" numberOfLines={2}>
+              <Text style={styles.topicText} numberOfLines={2}>
                 {item.topic}
               </Text>
               
               {/* Duration */}
-              <View className="flex-row items-center mb-4">
+              <View style={styles.durationContainer}>
                 <Ionicons name="time-outline" size={16} color="#6b7280" />
-                <Text className="text-gray-600 text-sm ml-1">
+                <Text style={styles.durationText}>
                   {item.target_minutes} minutes
                 </Text>
                 {item.actual_minutes > 0 && (
-                  <Text className="text-green-600 text-sm ml-2">
+                  <Text style={styles.actualMinutes}>
                     ({item.actual_minutes} completed)
                   </Text>
                 )}
@@ -114,34 +111,34 @@ export function TodaysPlan({ items = [], onUpdateProgress }: TodaysPlanProps) {
               
               {/* Actions */}
               {!isCompleted && !isSkipped && (
-                <View className="flex-row space-x-2">
+                <View style={styles.actionsContainer}>
                   <TouchableOpacity 
-                    className="flex-1 bg-green-100 p-3 rounded-lg items-center"
+                    style={styles.doneButton}
                     onPress={() => handleMarkDone(item)}
                   >
-                    <Text className="text-green-700 font-medium">Mark Done</Text>
+                    <Text style={styles.doneButtonText}>Mark Done</Text>
                   </TouchableOpacity>
                   
                   <TouchableOpacity 
-                    className="flex-1 bg-gray-100 p-3 rounded-lg items-center"
+                    style={styles.skipButton}
                     onPress={() => handleMarkSkipped(item)}
                   >
-                    <Text className="text-gray-600 font-medium">Skip</Text>
+                    <Text style={styles.skipButtonText}>Skip</Text>
                   </TouchableOpacity>
                 </View>
               )}
               
               {isCompleted && (
-                <View className="bg-green-50 p-3 rounded-lg">
-                  <Text className="text-green-700 font-medium text-center">
+                <View style={styles.completedContainer}>
+                  <Text style={styles.completedText}>
                     ✓ Completed
                   </Text>
                 </View>
               )}
               
               {isSkipped && (
-                <View className="bg-orange-50 p-3 rounded-lg">
-                  <Text className="text-orange-700 font-medium text-center">
+                <View style={styles.skippedContainer}>
+                  <Text style={styles.skippedText}>
                     Skipped - Will reschedule
                   </Text>
                 </View>
@@ -153,3 +150,130 @@ export function TodaysPlan({ items = [], onUpdateProgress }: TodaysPlanProps) {
     </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  scrollContainer: {
+    paddingHorizontal: 8,
+  },
+  container: {
+    flexDirection: 'row',
+  },
+  emptyCard: {
+    padding: 24,
+  },
+  emptyContainer: {
+    alignItems: 'center',
+  },
+  emptyTitle: {
+    color: '#6b7280',
+    textAlign: 'center',
+    marginTop: 12,
+  },
+  emptySubtitle: {
+    color: '#9ca3af',
+    textAlign: 'center',
+    marginTop: 4,
+  },
+  itemCard: {
+    width: 288,
+    padding: 16,
+    marginRight: 16,
+  },
+  itemHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  subjectBadge: {
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 20,
+  },
+  subjectText: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  completedIcon: {
+    width: 24,
+    height: 24,
+    backgroundColor: '#10b981',
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  skippedIcon: {
+    width: 24,
+    height: 24,
+    backgroundColor: '#f59e0b',
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  topicText: {
+    fontWeight: '600',
+    color: '#111827',
+    marginBottom: 8,
+  },
+  durationContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  durationText: {
+    color: '#6b7280',
+    fontSize: 14,
+    marginLeft: 4,
+  },
+  actualMinutes: {
+    color: '#10b981',
+    fontSize: 14,
+    marginLeft: 8,
+  },
+  actionsContainer: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  doneButton: {
+    flex: 1,
+    backgroundColor: '#d1fae5',
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  doneButtonText: {
+    color: '#065f46',
+    fontWeight: '500',
+  },
+  skipButton: {
+    flex: 1,
+    backgroundColor: '#f3f4f6',
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  skipButtonText: {
+    color: '#4b5563',
+    fontWeight: '500',
+  },
+  completedContainer: {
+    backgroundColor: '#d1fae5',
+    padding: 12,
+    borderRadius: 8,
+  },
+  completedText: {
+    color: '#065f46',
+    fontWeight: '500',
+    textAlign: 'center',
+  },
+  skippedContainer: {
+    backgroundColor: '#fef3c7',
+    padding: 12,
+    borderRadius: 8,
+  },
+  skippedText: {
+    color: '#92400e',
+    fontWeight: '500',
+    textAlign: 'center',
+  },
+});

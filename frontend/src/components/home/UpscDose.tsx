@@ -1,8 +1,7 @@
-import { View, Text, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, Alert, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Card } from '../ui/Card';
 import { useState } from 'react';
 
 export function UpscDose() {
@@ -32,44 +31,44 @@ export function UpscDose() {
         colors={['#3b82f6', '#1d4ed8']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        className="rounded-2xl p-6"
+        style={styles.container}
       >
-        <View className="flex-row items-center justify-between">
-          <View className="flex-1">
-            <View className="flex-row items-center mb-2">
-              <View className="w-3 h-3 bg-orange-400 rounded-full animate-pulse" />
-              <Text className="text-white font-semibold ml-2">
+        <View style={styles.content}>
+          <View style={styles.leftContent}>
+            <View style={styles.header}>
+              <View style={styles.indicator} />
+              <Text style={styles.availableText}>
                 Daily Dose Available
               </Text>
             </View>
             
-            <Text className="text-white text-lg font-bold mb-2">
+            <Text style={styles.title}>
               Your Quick UPSC Boost
             </Text>
             
-            <Text className="text-blue-100 text-sm mb-4">
+            <Text style={styles.subtitle}>
               5 mins • MCQs + Current Affairs + Essay Topic
             </Text>
             
-            <View className="flex-row items-center">
-              <View className="bg-white/20 px-3 py-1 rounded-full mr-2">
-                <Text className="text-white text-xs font-medium">
+            <View style={styles.badges}>
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>
                   🔥 Maintain Streak
                 </Text>
               </View>
-              <View className="bg-white/20 px-3 py-1 rounded-full">
-                <Text className="text-white text-xs font-medium">
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>
                   ⚡ Quick Practice
                 </Text>
               </View>
             </View>
           </View>
           
-          <View className="items-center">
-            <View className="w-16 h-16 bg-white/20 rounded-full items-center justify-center mb-2">
+          <View style={styles.rightContent}>
+            <View style={styles.iconContainer}>
               <Ionicons name="flash" size={32} color="white" />
             </View>
-            <Text className="text-white text-xs font-medium">
+            <Text style={styles.startText}>
               START NOW
             </Text>
           </View>
@@ -78,3 +77,77 @@ export function UpscDose() {
     </TouchableOpacity>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    borderRadius: 16,
+    padding: 24,
+  },
+  content: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  leftContent: {
+    flex: 1,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  indicator: {
+    width: 12,
+    height: 12,
+    backgroundColor: '#f59e0b',
+    borderRadius: 6,
+  },
+  availableText: {
+    color: 'white',
+    fontWeight: '600',
+    marginLeft: 8,
+  },
+  title: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  subtitle: {
+    color: '#bfdbfe',
+    fontSize: 14,
+    marginBottom: 16,
+  },
+  badges: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  badge: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 20,
+  },
+  badgeText: {
+    color: 'white',
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  rightContent: {
+    alignItems: 'center',
+  },
+  iconContainer: {
+    width: 64,
+    height: 64,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  startText: {
+    color: 'white',
+    fontSize: 12,
+    fontWeight: '500',
+  },
+});

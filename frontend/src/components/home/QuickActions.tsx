@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { Card } from '../ui/Card';
@@ -49,20 +49,18 @@ export function QuickActions() {
     <ScrollView 
       horizontal 
       showsHorizontalScrollIndicator={false}
-      className="-mx-2"
-      contentContainerStyle={{ paddingHorizontal: 8 }}
+      contentContainerStyle={styles.scrollContainer}
     >
-      <View className="flex-row space-x-3">
+      <View style={styles.container}>
         {quickActions.map((action) => (
           <TouchableOpacity
             key={action.id}
             onPress={() => router.push(action.route as any)}
-            className="mr-3 last:mr-0"
+            style={styles.actionItem}
           >
-            <Card className="w-36 p-4">
+            <Card style={styles.actionCard}>
               <View 
-                className="w-12 h-12 rounded-full items-center justify-center mb-3"
-                style={{ backgroundColor: action.bgColor }}
+                style={[styles.iconContainer, { backgroundColor: action.bgColor }]}
               >
                 <Ionicons 
                   name={action.icon as any} 
@@ -71,10 +69,10 @@ export function QuickActions() {
                 />
               </View>
               
-              <Text className="font-semibold text-gray-900 mb-1">
+              <Text style={styles.actionTitle}>
                 {action.title}
               </Text>
-              <Text className="text-sm text-gray-600">
+              <Text style={styles.actionSubtitle}>
                 {action.subtitle}
               </Text>
             </Card>
@@ -84,3 +82,36 @@ export function QuickActions() {
     </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  scrollContainer: {
+    paddingHorizontal: 8,
+  },
+  container: {
+    flexDirection: 'row',
+  },
+  actionItem: {
+    marginRight: 12,
+  },
+  actionCard: {
+    width: 144,
+    padding: 16,
+  },
+  iconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+  },
+  actionTitle: {
+    fontWeight: '600',
+    color: '#111827',
+    marginBottom: 4,
+  },
+  actionSubtitle: {
+    fontSize: 12,
+    color: '#6b7280',
+  },
+});
