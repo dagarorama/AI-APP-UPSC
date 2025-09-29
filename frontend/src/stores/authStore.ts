@@ -1,7 +1,7 @@
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
+import { Platform } from 'react-native';
 import { apiClient } from '../services/apiClient';
 
 interface User {
@@ -40,6 +40,42 @@ interface AuthState {
   authenticate: (phone: string, otp: string) => Promise<boolean>;
 }
 
+// Platform-specific secure storage
+const secureStore = {
+  getItemAsync: async (key: string): Promise<string | null> => {
+    try {
+      if (Platform.OS === 'web') {
+        return localStorage.getItem(key);
+      }
+      return await SecureStore.getItemAsync(key);
+    } catch {
+      return null;
+    }
+  },
+  setItemAsync: async (key: string, value: string): Promise<void> => {
+    try {
+      if (Platform.OS === 'web') {
+        localStorage.setItem(key, value);
+        return;
+      }
+      await SecureStore.setItemAsync(key, value);
+    } catch {
+      // Ignore errors
+    }
+  },
+  deleteItemAsync: async (key: string): Promise<void> => {
+    try {
+      if (Platform.OS === 'web') {
+        localStorage.removeItem(key);
+        return;
+      }
+      await SecureStore.deleteItemAsync(key);
+    } catch {
+      // Ignore errors
+    }
+  }
+};
+
 export const useAuthStore = create<AuthState>(
   (set, get) => ({
     user: null,
@@ -53,12 +89,12 @@ export const useAuthStore = create<AuthState>(
     setProfile: (profile) => set({ profile }),
     
     setToken: async (token) => {
-      await SecureStore.setItemAsync('auth_token', token);
+      await secureStore.setItemAsync('auth_token', token);
       set({ token, isAuthenticated: true });
     },
     
     logout: async () => {
-      await SecureStore.deleteItemAsync('auth_token');
+      await secureStore.deleteItemAsync('auth_token');
       set({ 
         user: null, 
         profile: null, 
@@ -70,7 +106,7 @@ export const useAuthStore = create<AuthState>(
     loadUserData: async () => {
       try {
         set({ isLoading: true });
-        const token = await SecureStore.getItemAsync('auth_token');
+        const token = await secureStore.getItemAsync('auth_token');
         
         if (!token) {
           set({ isAuthenticated: false, isLoading: false });
@@ -127,11 +163,17 @@ export const useAuthStore = create<AuthState>(
   })
 );
 
-// Initialize auth state on app start
+// Initialize auth state on app start (skip on web for now)
 const initializeAuth = async () => {
-  const token = await SecureStore.getItemAsync('auth_token');
-  if (token) {
-    useAuthStore.getState().loadUserData();
+  try {
+    if (Platform.OS !== 'web') {
+      const token = await secureStore.getItemAsync('auth_token');
+      if (token) {
+        useAuthStore.getState().loadUserData();
+      }
+    }
+  } catch (error) {
+    console.log('Auth initialization skipped:', error);
   }
 };
 
