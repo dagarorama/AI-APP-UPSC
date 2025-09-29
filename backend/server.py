@@ -1,6 +1,7 @@
 from fastapi import FastAPI, APIRouter, HTTPException, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
+from fastapi.encoders import jsonable_encoder
 from dotenv import load_dotenv
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel, Field
@@ -8,7 +9,6 @@ from typing import List, Optional, Dict, Any, Union
 from datetime import datetime, timedelta
 from enum import Enum
 from bson import ObjectId
-import pydantic
 import os
 import logging
 import uuid
