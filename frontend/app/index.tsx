@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -16,34 +16,17 @@ import { UpscDose } from '../src/components/home/UpscDose';
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { user, isAuthenticated, profile, loadUserData } = useAuthStore();
-  const { todayItems, loadTodayItems, updateItemProgress } = usePlannerStore();
-  const { dashboardData, loadDashboardData } = useAnalyticsStore();
-  const [isLoading, setIsLoading] = useState(true);
+  const { user, isAuthenticated, profile } = useAuthStore();
+  const { todayItems, updateItemProgress } = usePlannerStore();
+  const { dashboardData } = useAnalyticsStore();
+  const [isLoading, setIsLoading] = useState(false);
 
+  // Redirect to onboarding if not authenticated
   useEffect(() => {
-    initializeApp();
-  }, []);
-
-  const initializeApp = async () => {
-    try {
-      if (!isAuthenticated) {
-        router.replace('/auth/onboarding');
-        return;
-      }
-      
-      await Promise.all([
-        loadUserData(),
-        loadTodayItems(),
-        loadDashboardData()
-      ]);
-    } catch (error) {
-      console.error('Error initializing app:', error);
-      Alert.alert('Error', 'Failed to load app data. Please try again.');
-    } finally {
-      setIsLoading(false);
+    if (!isAuthenticated) {
+      router.replace('/auth/onboarding');
     }
-  };
+  }, [isAuthenticated]);
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -65,20 +48,11 @@ export default function HomeScreen() {
       .reduce((sum, item) => sum + (item.actual_minutes || 0), 0);
   };
 
+  // Show onboarding for non-authenticated users
   if (!isAuthenticated) {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#3b82f6" />
-        <Text style={styles.loadingText}>Loading...</Text>
-      </View>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#3b82f6" />
-        <Text style={styles.loadingText}>Preparing your dashboard...</Text>
+        <Text style={styles.loadingText}>Redirecting to onboarding...</Text>
       </View>
     );
   }
