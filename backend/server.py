@@ -7,6 +7,8 @@ from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any, Union
 from datetime import datetime, timedelta
 from enum import Enum
+from bson import ObjectId
+import pydantic
 import os
 import logging
 import uuid
@@ -17,6 +19,9 @@ from pathlib import Path
 import ollama
 import base64
 import re
+
+# Fix MongoDB ObjectId serialization issue with Pydantic/FastAPI
+pydantic.json.ENCODERS_BY_TYPE[ObjectId] = str
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
