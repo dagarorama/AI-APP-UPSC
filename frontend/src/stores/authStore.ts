@@ -40,102 +40,91 @@ interface AuthState {
   authenticate: (phone: string, otp: string) => Promise<boolean>;
 }
 
-export const useAuthStore = create<AuthState>()(
-  persist(
-    (set, get) => ({
-      user: null,
-      profile: null,
-      token: null,
-      isAuthenticated: false,
-      isLoading: false,
+export const useAuthStore = create<AuthState>(
+  (set, get) => ({
+    user: null,
+    profile: null,
+    token: null,
+    isAuthenticated: false,
+    isLoading: false,
 
-      setUser: (user) => set({ user }),
-      
-      setProfile: (profile) => set({ profile }),
-      
-      setToken: async (token) => {
-        await SecureStore.setItemAsync('auth_token', token);
-        set({ token, isAuthenticated: true });
-      },
-      
-      logout: async () => {
-        await SecureStore.deleteItemAsync('auth_token');
-        set({ 
-          user: null, 
-          profile: null, 
-          token: null, 
-          isAuthenticated: false 
+    setUser: (user) => set({ user }),
+    
+    setProfile: (profile) => set({ profile }),
+    
+    setToken: async (token) => {
+      await SecureStore.setItemAsync('auth_token', token);
+      set({ token, isAuthenticated: true });
+    },
+    
+    logout: async () => {
+      await SecureStore.deleteItemAsync('auth_token');
+      set({ 
+        user: null, 
+        profile: null, 
+        token: null, 
+        isAuthenticated: false 
+      });
+    },
+    
+    loadUserData: async () => {
+      try {
+        set({ isLoading: true });
+        const token = await SecureStore.getItemAsync('auth_token');
+        
+        if (!token) {
+          set({ isAuthenticated: false, isLoading: false });
+          return;
+        }
+        
+        const response = await apiClient.get('/me', {
+          headers: { Authorization: `Bearer ${token}` }
         });
-      },
-      
-      loadUserData: async () => {
-        try {
-          set({ isLoading: true });
-          const token = await SecureStore.getItemAsync('auth_token');
-          
-          if (!token) {
-            set({ isAuthenticated: false, isLoading: false });
-            return;
-          }
-          
-          const response = await apiClient.get('/me', {
-            headers: { Authorization: `Bearer ${token}` }
-          });
-          
-          set({ 
-            user: response.data.user,
-            profile: response.data.profile,
-            token,
-            isAuthenticated: true 
-          });
-        } catch (error) {
-          console.error('Error loading user data:', error);
-          await get().logout();
-        } finally {
-          set({ isLoading: false });
-        }
-      },
-      
-      setupProfile: async (data) => {
-        try {
-          const { token } = get();
-          await apiClient.post('/profile/setup', data, {
-            headers: { Authorization: `Bearer ${token}` }
-          });
-          
-          // Reload user data to get updated profile
-          await get().loadUserData();
-        } catch (error) {
-          console.error('Error setting up profile:', error);
-          throw error;
-        }
-      },
-      
-      authenticate: async (phone, otp) => {
-        try {
-          const response = await apiClient.post('/auth/verify', { phone, otp });
-          const { token, user_id } = response.data;
-          
-          await get().setToken(token);
-          await get().loadUserData();
-          
-          return true;
-        } catch (error) {
-          console.error('Authentication error:', error);
-          return false;
-        }
-      },
-    }),
-    {
-      name: 'auth-storage',
-      storage: createJSONStorage(() => AsyncStorage),
-      partialize: (state) => ({ 
-        user: state.user, 
-        profile: state.profile,
-        isAuthenticated: state.isAuthenticated
-      }),
-    }
-  )
+        
+        set({ 
+          user: response.data.user,
+          profile: response.data.profile,
+          token,
+          isAuthenticated: true 
+        });
+      } catch (error) {
+        console.error('Error loading user data:', error);
+        await get().logout();
+      } finally {
+        set({ isLoading: false });
+      }
+    },
+    
+    setupProfile: async (data) => {
+      try {
+        const { token } = get();
+        await apiClient.post('/profile/setup', data, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        // Reload user data to get updated profile
+        await get().loadUserData();
+      } catch (error) {
+        console.error('Error setting up profile:', error);
+        throw error;
+      }
+    },
+    
+    authenticate: async (phone, otp) => {
+      try {
+        const response = await apiClient.post('/auth/verify', { phone, otp });
+        const { token, user_id } = response.data;
+        
+        await get().setToken(token);
+        await get().loadUserData();
+        
+        return true;
+      } catch (error) {
+        console.error('Authentication error:', error);
+        return false;
+      }
+    },
+  })
 );
 
 // Initialize auth state on app start
